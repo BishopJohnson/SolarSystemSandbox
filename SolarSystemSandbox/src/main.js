@@ -17,7 +17,7 @@ Background.prototype.update = function () {
 
 var AM = new AssetManager();
 
-AM.queueDownload("./img/Background.png");
+AM.queueDownload("./SolarSystemSandbox/img/Background.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
@@ -30,7 +30,7 @@ AM.downloadAll(function () {
     gameEngine.init(ctx);
     gameEngine.start();
 
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/Background.png")));
+    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./SolarSystemSandbox/img/Background.png")));
 
     var star = new Star(gameEngine, 400, 350);
     gameEngine.addEntity(star);
