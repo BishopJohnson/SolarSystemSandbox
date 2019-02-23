@@ -95,7 +95,7 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.addEntity = function (entity) {
-    console.log('added entity');
+    //console.log('added entity');
 
     this.entities.push(entity);
 }
@@ -230,8 +230,8 @@ class Collider {
         if (other) { // Asserts other is defined
 
             // Gets the distance between the two colliders
-            var dx = this.x + other.x;
-            var dy = this.y + other.y;
+            var dx = this.x - other.x;
+            var dy = this.y - other.y;
             var distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 
             if (this.radius + other.radius >= distance) // Checks if colliders collided with each other

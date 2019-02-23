@@ -68,8 +68,8 @@ class Entity {
 class CelestialBody extends Entity {
 
     /**
-     *
-     *
+     * Class for bodies that interact in the simulation.
+     * 
      * @param {GameEngine} game The game engine the body is in.
      * @param {number} x The x coordinate of the body.
      * @param {number} y The y coordinate of the body.
@@ -189,28 +189,44 @@ class CelestialBody extends Entity {
      * @param {CelestialBody} other The other 
      */
     impact(other) {
-        if (Number.isFinite(this.mass + other.mass)) { // Checks if sum of masses is finite
+        if (other && !other.removeFromWorld) { // Asserts other is defined and not marked for deletion
+            var direction = new Vector(this.x - other.x, this.y - other.y).normalize(); // The direction the force is applied against this body
 
-            /* TODO: Determine which new body should be spawned in based on the input bodies.
-             */
+            let force;
 
-            if (this.mass >= other.mass) { // Determines which body gains mass
-                this.mass += other.mass;
-                other.removeFromWorld = true;
-            } else {
-                other.mass += this.mass;
+            if (Number.isFinite(this.mass + other.mass)) { // Checks if sum of masses is finite
+
+                /* TODO: Determine which new body should be spawned in based on the input bodies.
+                 */
+
+                if (this.mass >= other.mass) { // Determines which body gains mass
+                    this.mass += other.mass;
+                    //force = other.mass * ;
+
+                    other.removeFromWorld = true;
+                } else {
+                    other.mass += this.mass;
+                    /*other.velocity = */
+
+                    this.removeFromWorld = true;
+                }
+            } else { // Creates a black hole
+                let blackhole;
+
+                if (this.mass >= other.mass) { // Determines where to spawn the black hole
+                    blackhole = new BlackHole(this.game, this.x, this.y);
+                    this.game.addEntity(blackhole);
+                } else {
+                    blackhole = new BlackHole(this.game, other.x, other.y);
+                    this.game.addEntity(blackhole);
+                }
+
+                /*blackhole.velocity = */
+
+                // Marks both bodies for deletion
                 this.removeFromWorld = true;
+                other.removeFromWorld = true;
             }
-        } else { // Creates a black hole
-            if (this.mass >= other.mass) { // Determines where to spawn the black hole
-                this.game.addEntity(new BlackHole(this.game, this.x, this.y));
-            } else {
-                this.game.addEntity(new BlackHole(this.game, other.x, other.y));
-            }
-
-            // Marks both bodies for deletion
-            this.removeFromWorld = true;
-            other.removeFromWorld = true;
         }
     }
 }
@@ -221,8 +237,8 @@ class CelestialBody extends Entity {
 class Star extends CelestialBody {
 
     /**
-     *
-     *
+     * 
+     * 
      * @param {GameEngine} game The game engine the star is in.
      * @param {number} x The x coordinate of the star.
      * @param {number} y The y coordinate of the star.
@@ -247,8 +263,8 @@ class Star extends CelestialBody {
 class Planet extends CelestialBody {
 
     /**
-     *
-     *
+     * 
+     * 
      * @param {GameEngine} game The game engine the planet is in.
      * @param {number} x The x coordinate of the planet.
      * @param {number} y The y coordinate of the planet.
@@ -281,7 +297,7 @@ class BlackHole extends CelestialBody {
      * @param {number} mass (Optional) The mass of the black hole.
      * @param {number} radius (Optional) The radius of the black hole.
      */
-    constructor(game, x, y, mass = Infinity, radius = 20) {
+    constructor(game, x, y, mass = 100000/* Infinity */, radius = 10) {
         super(game, x, y, mass, radius, BLACK_HOLE); // Call to super constructor
     }
 
@@ -289,6 +305,6 @@ class BlackHole extends CelestialBody {
      * 
      */
     draw() {
-        super.draw("red", "white"); // Call to super method
+        super.draw("black", "white"); // Call to super method
     }
 }
