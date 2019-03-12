@@ -1,14 +1,14 @@
 /**
- * 
+ * Entity to be placed in the game world.
  */
 class Entity {
 
     /**
+     * The constructor for the Entity.
      * 
-     * 
-     * @param {GameEngine} game
-     * @param {number} x
-     * @param {number} y
+     * @param {GameEngine} game The game engine.
+     * @param {number} x The x position of the entity.
+     * @param {number} y The y position of the entity.
      */
     constructor(game, x, y) {
         this.game = game;
@@ -20,13 +20,28 @@ class Entity {
     }
 
     /**
+     * Returns the attributes that are necessary for the Entity.
      * 
+     * @return {string} The relavent attributes that make up the Entity.
+     */
+    save() {
+        var data = [];
+
+        data.push(this.x);
+        data.push(this.y);
+        data.push(this.velocity.toString());
+
+        return data.join();
+    }
+
+    /**
+     * Update method of the Entity.
      */
     update() {
     }
 
     /**
-     * 
+     * Draw method of the Entity.
      */
     draw() {
         if (this.game.showOutlines && this.radius) {
@@ -63,12 +78,12 @@ class Entity {
 }
 
 /**
- * 
+ * Class for CelestialBody that interact in the simulation with other bodies.
  */
 class CelestialBody extends Entity {
 
     /**
-     * Class for bodies that interact in the simulation.
+     * The constructor for the CelestialBody.
      * 
      * @param {GameEngine} game The game engine the body is in.
      * @param {number} x The x coordinate of the body.
@@ -86,7 +101,24 @@ class CelestialBody extends Entity {
     }
 
     /**
+     * Returns the attributes that are necessary for the CelestialBody.
      * 
+     * @return {string} The relavent attributes that make up the body.
+     */
+    save() {
+        var data = [];
+
+        data.push(super.save()); // Gets super save data
+        data.push(this.mass);
+        data.push(this.radius);
+
+        return data.join();
+    }
+
+    /**
+     * Update method of the CelestialBody.
+     * 
+     * <p>Pulls other bodies towards it and checks for impacts.</p>
      */
     update() {
         if (!this.removeFromWorld) { // Checks if body is marked for deletion
@@ -132,7 +164,7 @@ class CelestialBody extends Entity {
     }
 
     /**
-     * 
+     * Updates the collider with the new position and radius.
      */
     updateCollider() {
         this.collider = new Collider(this.x, this.y, this.radius, this.collider.tag);
@@ -184,9 +216,9 @@ class CelestialBody extends Entity {
     }
 
     /**
+     * Simulates an impact event between two bodies.
      * 
-     * 
-     * @param {CelestialBody} other The other 
+     * @param {CelestialBody} other The other body in the impact.
      */
     impact(other) {
         if (other && !other.removeFromWorld) { // Asserts other is defined and not marked for deletion
@@ -232,12 +264,12 @@ class CelestialBody extends Entity {
 }
 
 /**
- * 
+ * Large body with a lot of mass.
  */
 class Star extends CelestialBody {
 
     /**
-     * 
+     * The constructor for the Star.
      * 
      * @param {GameEngine} game The game engine the star is in.
      * @param {number} x The x coordinate of the star.
@@ -250,7 +282,21 @@ class Star extends CelestialBody {
     }
 
     /**
+     * Returns the attributes that are necessary for the Star.
      * 
+     * @return {string} The relavent attributes that make up the Star.
+     */
+    save() {
+        var data = [];
+
+        data.push(STAR); // Saves the tag
+        data.push(super.save()); // Gets super save data
+
+        return data.join();
+    }
+
+    /**
+     * Draw method for the Star.
      */
     draw() {
         super.draw("white", "white"); // Call to super method
@@ -258,12 +304,12 @@ class Star extends CelestialBody {
 }
 
 /**
- * 
+ * Small body with not a lot of mass.
  */
 class Planet extends CelestialBody {
 
     /**
-     * 
+     * The constructor for the Planet.
      * 
      * @param {GameEngine} game The game engine the planet is in.
      * @param {number} x The x coordinate of the planet.
@@ -276,7 +322,21 @@ class Planet extends CelestialBody {
     }
 
     /**
+     * Returns the attributes that are necessary for the Planet.
      * 
+     * @return {string} The relavent attributes that make up the Planet.
+     */
+    save() {
+        var data = [];
+
+        data.push(TERRESTRIAL_PLANET); // Saves the tag
+        data.push(super.save()); // Gets super save data
+
+        return data.join();
+    }
+
+    /**
+     * Draw method for the Planet.
      */
     draw() {
         super.draw("orange", "orange"); // Call to super method
@@ -284,12 +344,12 @@ class Planet extends CelestialBody {
 }
 
 /**
- * 
+ * Small body with an extreme amount of mass.
  */
 class BlackHole extends CelestialBody {
 
     /**
-     * 
+     * The constructor for the BlackHole.
      * 
      * @param {GameEngine} game The game engine the black hole is in.
      * @param {number} x The x coordinate of the black hole.
@@ -302,7 +362,21 @@ class BlackHole extends CelestialBody {
     }
 
     /**
+     * Returns the attributes that are necessary for the BlackHole.
      * 
+     * @return {string} The relavent attributes that make up the BlackHole.
+     */
+    save() {
+        var data = [];
+
+        data.push(BLACK_HOLE); // Saves the tag
+        data.push(super.save()); // Gets super save data
+
+        return data.join();
+    }
+
+    /**
+     * Draw method for the BlackHole.
      */
     draw() {
         super.draw("black", "white"); // Call to super method

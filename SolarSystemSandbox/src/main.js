@@ -1,4 +1,4 @@
-function Background(game, spritesheet) {
+function Background(game, spritesheet = AM.getAsset("./SolarSystemSandbox/img/Background.png")) {
     this.x = 0;
     this.y = 0;
     this.spritesheet = spritesheet;
@@ -13,37 +13,6 @@ Background.prototype.draw = function () {
 Background.prototype.update = function () {
 };
 
-function startSystem(game) {
-    game.entities = []; // Clears entities array
-
-    // Adds background
-    game.addEntity(new Background(game, AM.getAsset("./SolarSystemSandbox/img/Background.png")));
-
-    var starone = new Star(game, 350, 350);
-    game.addEntity(starone);
-    starone.velocity = new Vector(0, -0.4);
-
-    var startwo = new Star(game, 480, 350, 5000, 20);
-    game.addEntity(startwo);
-    startwo.velocity = new Vector(0, 0.8);
-
-    var planetone = new Planet(game, 550, 350);
-    game.addEntity(planetone);
-    planetone.velocity = new Vector(0, -1.2);
-
-    var planettwo = new Planet(game, 100, 200, 8, 8);
-    game.addEntity(planettwo);
-    planettwo.velocity = new Vector(-1.5, 2.5);
-
-    var planetthree = new Planet(game, 200, 200, 10, 4);
-    game.addEntity(planetthree);
-    planetthree.velocity = new Vector(-1.5, 1.5);
-
-    var planetthree = new Planet(game, 100, 600, 1, 2);
-    game.addEntity(planetthree);
-    planetthree.velocity = new Vector(1, 1);
-};
-
 // Main code begins here
 
 var AM = new AssetManager();
@@ -53,26 +22,48 @@ AM.queueDownload("./SolarSystemSandbox/img/Background.png");
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
     var ctx = canvas.getContext("2d");
+    var socket = io.connect("http://24.16.255.56:8888"); // Connects to the server
     const restartbtn = document.getElementById("restart_btn");
     const blkholebtn = document.getElementById("blkhole_btn");
-
-    //ctx.imageSmoothingEnabled = false; //disables pixel smoothing
 
     var gameEngine = new GameEngine();
 
     gameEngine.init(ctx);
     gameEngine.start();
+    
+    socket.on("load", function (data) { // Displays data loaded
+        console.log(data);
 
-    restartbtn.addEventListener('click', function (e) {
-        startSystem(gameEngine);
+        gameEngine.load(data.data);
     });
 
-    blkholebtn.addEventListener('click', function (e) {
-        var blackhole = new BlackHole(gameEngine, 100, 100);
-        gameEngine.addEntity(blackhole);
+    var text = document.getElementById("text");
+    var saveButton = document.getElementById("save");
+    var loadButton = document.getElementById("load");
+
+    saveButton.onclick = function () { // Save button functionality
+        console.log("save");
+        text.innerHTML = "Saved.";
+
+        socket.emit("save", { studentname: "Bishop Johnson", statename: "aState", data: gameEngine.save() }); // Data for PUT request
+    };
+
+    loadButton.onclick = function () { // Load button functionality
+        console.log("load");
+        text.innerHTML = "Loaded.";
+        socket.emit("load", { studentname: "Bishop Johnson", statename: "aState" }); // Parameters for GET request
+    };
+    
+    restartbtn.addEventListener('click', function (e) { // Reset button functionality
+        system.start();
     });
 
-    startSystem(gameEngine);
+    blkholebtn.addEventListener('click', function (e) { // Blackhole button functionality
+        gameEngine.addEntity(new BlackHole(gameEngine, 100, 100));
+    });
+
+    //let system = new UnarySystem(gameEngine, background);
+    let system = new BinarySystem(gameEngine);
 
     console.log("All Done!");
 });

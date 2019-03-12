@@ -138,12 +138,73 @@ GameEngine.prototype.loop = function () {
 }
 
 /**
+ * Saves the current game state.
  * 
+ * @return {string} The data of the current save state.
+ */
+GameEngine.prototype.save = function () {
+    var data = [];
+
+    for (var i = 0; i < this.entities.length; i++) {
+        var entity = this.entities[i];
+
+        if (entity instanceof Entity) { // Checks if entity inherits from Entity class
+            data.push(entity.save());
+        }
+    }
+
+    return data.join();
+}
+
+/**
+ * Loads a game state using imported data.
+ * 
+ * @param {string} data The data being loaded.
+ */
+GameEngine.prototype.load = function (data) {
+    this.entities = []; // Clears entities
+    this.addEntity(new Background(this));
+
+    var array = data.split(","); // Array with entity data
+
+    for (var i = 0; i < array.length; i++) {
+        var tag = Number(array[i++]);                                      // tag
+        var x = Number(array[i++]);                                        // x
+        var y = Number(array[i++]);                                        // y
+        var velocity = new Vector(Number(array[i++]), Number(array[i++])); // velocity
+        var mass = Number(array[i++]);                                     // mass
+        var radius = Number(array[i]);                                     // radius
+
+        let constr; // The constructor
+        switch (tag) { // Determines which type of constructor is needed
+            case STAR:
+                constr = Star;
+                break;
+            case TERRESTRIAL_PLANET:
+                constr = Planet;
+                break;
+            case BLACK_HOLE:
+                constr = BlackHole;
+                break;
+            default:
+                throw "Could not determine object type!";
+        }
+
+        // Creates the Entity and adds it to the game
+        var entity = new constr(this, x, y, mass, radius);
+        entity.velocity = velocity;
+
+        this.addEntity(entity);
+    }
+}
+
+/**
+ * A 2D Vector class
  */
 class Vector {
 
     /**
-     * 
+     * The constructor for the Vector.
      * 
      * @param {number} x (Optional) The vector in the x direction. Default is 0.
      * @param {number} y (Optional) The vector in the y direction. Default is 0.
@@ -151,6 +212,15 @@ class Vector {
     constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Converts the Vector into a string.
+     * 
+     * @return {string} The Vector in string format.
+     */
+    toString() {
+        return this.x + "," + this.y;
     }
 
     /**
@@ -200,12 +270,12 @@ class Vector {
 }
 
 /**
- * 
+ * A circle Collider for collision between bodies.
  */
 class Collider {
 
     /**
-     * 
+     * The constructor for the Collider.
      * 
      * @param {number} x The x position of the collider.
      * @param {number} y The y position of the collider.
